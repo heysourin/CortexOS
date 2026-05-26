@@ -1,6 +1,6 @@
 # 🧠 CortexOS Agent Skills
 
-[![NPM Version](https://img.shields.io/npm/v/cortexos-agent-skills?color=34D399&label=skills&logo=npm)](https://www.npmjs.com/)
+<!-- [![NPM Version](https://img.shields.io/npm/v/cortexos-agent-skills?color=34D399&label=skills&logo=npm)](https://www.npmjs.com/) -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-36B37E.svg)](https://opensource.org/licenses/MIT)
 [![Security: Local Only](https://img.shields.io/badge/Security-Local%20Only-blueviolet.svg)](#-local-security-guardrails)
 
