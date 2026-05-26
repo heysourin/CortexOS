@@ -31,7 +31,39 @@ Ask:
 
 Accept any absolute or relative path. Resolve `~` to the user's home directory. The final vault path is `{location}/{vault-name}/`.
 
-### Step 3: Startup Domain & Web Discovery
+### Step 3: Company Profile (Stage, Revenue & Size)
+
+Ask the user in **one single question** about their company's stage, revenue, and employee count:
+> "To help organize your wiki subdirectories and tailor the system to your scale, could you tell me your company's:
+> 1. **Current Stage** (e.g., Idea, Pre-MVP, MVP, PMF, Growth, Scaling)
+> 2. **Annual or Monthly Revenue** (e.g., $0, $15k MRR, $1.5M ARR)
+> 3. **Employee Count** (e.g., 2, 8, 15, 50, 150 employees)
+> 
+> (Format your response as a single string, e.g. 'Seed, $15k MRR, 8 employees', or accept the default: 'Idea, $0, 2 employees')"
+
+**Dynamic LLM Routing & Decision Logic:**
+Review the user's response, map it to the closest fitting knowledge architecture tier from the rules below, and dynamically decide the final list of subdirectories to create:
+
+*   **Tier 1: 1–3 People (Idea / Pre-MVP / Pre-revenue)**
+    *   *Folders to create*: `company`, `ideas`, `product`, `engineering`, `customers`, `research`, `founder-notes`
+    *   *Do NOT Create*: HR, Finance, Legal, Customer Success, Analytics
+*   **Tier 2: 3–10 People (MVP / Early traction / Pre-PMF | $0–$20k MRR)**
+    *   *Folders to create*: `product`, `engineering`, `sales`, `marketing`, `customers`, `operations`, `roadmap`, `experiments` (Optional: `ai`, `automation`, `support`)
+*   **Tier 3: 10–25 People (PMF / Early growth | $20k–$200k MRR)**
+    *   *Folders to create*: `engineering/backend`, `engineering/frontend`, `engineering/infra`, `product/roadmap`, `product/research`, `sales`, `marketing`, `customer-success`, `operations`, `finance`, `hiring`, `analytics`
+*   **Tier 4: 25–75 People (Growth | $200k–$2M+ MRR)**
+    *   *Folders to create*: `engineering/backend`, `engineering/frontend`, `engineering/infra`, `engineering/ai`, `product`, `marketing/content`, `marketing/seo`, `marketing/paid`, `sales/inbound`, `sales/outbound`, `customer-success`, `finance`, `people`, `legal`, `analytics`, `leadership`
+*   **Tier 5: 75–200+ People (Scaling | Multi-million ARR)**
+    *   *Folders to create*: Full departmental hierarchy (`strategy`, `product`, `engineering`, `competitors`, `marketing-sales`, `customer-success`, `finance-legal`, `hr-talent`, `operations`, `meetings`, `compliance`, `security`, `recruiting`, `decision-logs`)
+
+Based on this mapping, determine:
+- `{{COMPANY_STAGE}}` (e.g., PMF)
+- `{{COMPANY_REVENUE}}` (e.g., $150k MRR)
+- `{{COMPANY_EMPLOYEES}}` (e.g., 18)
+- `{{SCALING_TIER}}` (e.g., Tier 3: 10–25 People)
+- `{{SUBDIRECTORIES}}` (list of determined subdirectories, e.g., `sales`, `marketing`, `engineering/backend`, etc.)
+
+### Step 4: Startup Domain & Web Discovery
 
 Ask:
 > "What is your startup's website URL? (e.g. `https://mycompany.com`). If you don't have one yet, or want to configure manually, just press Enter or type 'skip'."
@@ -54,7 +86,7 @@ If skipped, empty, or fetching fails:
    > "What does your startup do? Give me a brief, one-sentence description."
 2. Ask the user for 5-8 relevant industry tags (e.g., `ai-agents`, `cybersecurity`, `e-commerce`), offering 3-4 suggestions based on their description.
 
-### Step 4: Agent Config
+### Step 5: Agent Config
 
 Auto-detect which agent is running this skill. State it clearly:
 > "I'm running in **[Agent Name]**, so I'll generate a **[config file]** for this vault."
@@ -72,7 +104,7 @@ Skip the agent that was auto-detected. Generate configs for all selected agents.
 - If `GEMINI.md` convention is being used → Gemini CLI
 - If unsure, ask the user which agent they're using
 
-### Step 5: Optional CLI Tools
+### Step 6: Optional CLI Tools
 
 Ask:
 > "These tools extend what the LLM can do with your vault. All optional but recommended:"
@@ -89,10 +121,10 @@ After collecting all answers, execute these steps in order:
 
 ### 1. Create directory structure
 
-Run the onboarding script, passing the full vault path:
+Run the onboarding script, passing the full vault path followed by the list of chosen subdirectories:
 
 ```
-bash <skill-directory>/scripts/onboarding.sh <vault-path>
+bash <skill-directory>/scripts/onboarding.sh <vault-path> <subdirectory-1> <subdirectory-2> ...
 ```
 
 This creates all directories and the initial `wiki/index.md` and `wiki/log.md` files.
@@ -111,8 +143,12 @@ For each selected agent, read the corresponding template from `<skill-directory>
 For each template, replace the placeholders:
 
 - `{{VAULT_NAME}}` → the vault name from Step 1
-- `{{DOMAIN_DESCRIPTION}}` → a one-line description derived from Step 3
-- `{{DOMAIN_TAGS}}` → generate 5-8 domain-relevant tags as a bullet list based on the domain from Step 3
+- `{{COMPANY_STAGE}}` → the company stage from Step 3
+- `{{COMPANY_REVENUE}}` → the company revenue from Step 3
+- `{{COMPANY_EMPLOYEES}}` → the employee count from Step 3
+- `{{SCALING_TIER}}` → the scaling tier decided by the LLM in Step 3
+- `{{DOMAIN_DESCRIPTION}}` → a one-line description derived from Step 4
+- `{{DOMAIN_TAGS}}` → generate 5-8 domain-relevant tags as a bullet list based on the domain from Step 4
 - `{{WIKI_SCHEMA}}` → read `<skill-directory>/references/wiki-schema.md` and insert everything from `## Architecture` onward
 
 Write the generated config to the vault.
@@ -124,6 +160,7 @@ Append the setup entry:
 ```
 ## [YYYY-MM-DD] setup | Vault initialized
 Created vault "{{VAULT_NAME}}" for {{DOMAIN_DESCRIPTION}}.
+Knowledge Architecture scale: {{SCALING_TIER}} ({{COMPANY_EMPLOYEES}} employees, {{COMPANY_REVENUE}} revenue, Stage: {{COMPANY_STAGE}}).
 Agent configs: {{list of generated config files}}.
 ```
 

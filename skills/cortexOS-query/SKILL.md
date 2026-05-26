@@ -16,13 +16,7 @@ Answer questions by searching and synthesizing knowledge from the tech startup w
 
 ### 1. Start with the index
 
-Read `wiki/index.md` to identify relevant pages. Scan all tech startup categories for entries related to the question:
-- **Strategy & Vision** (mission, pitches, vision)
-- **Product & Engineering** (PRDs, roadmap, architecture)
-- **Market & Competitors** (market research, matrices)
-- **Sales & CRM** (playbooks, personas)
-- **Finance & Legal** (fundraising, compliance)
-- **Operations & People** (SOPs, hiring, meeting notes)
+Read `wiki/index.md` to identify relevant pages. Scan all tech startup categories and their corresponding subdirectories (e.g. `wiki/engineering/`, `wiki/product-eng/`, `wiki/ops-admin/` etc.) for entries related to the question.
 
 ### 2. Use qmd for large wikis
 
@@ -32,15 +26,15 @@ If `qmd` is installed (check with `command -v qmd`), use it for search:
 qmd search "query terms" --path wiki/
 ```
 
-This is especially useful when the wiki has grown beyond ~100 pages where scanning the index becomes inefficient.
+This will recursively search all wiki subdirectories and is especially useful when the wiki has grown beyond ~100 pages where scanning the index becomes inefficient.
 
 ### 3. Read relevant pages
 
-Read the wiki pages identified by the index or search. Follow `[[wikilinks]]` to pull in related context from linked pages. Read enough pages to give a thorough answer, but don't read the entire wiki.
+Read the wiki pages identified by the index or search. Follow `[[wikilinks]]` to pull in related context from linked pages across all subfolders. Read enough pages to give a thorough answer, but don't read the entire wiki.
 
 ### 4. Check raw sources if needed
 
-If the wiki pages don't fully answer the question, check relevant source summaries in `wiki/sources/` for additional detail. Only go to raw files in `raw/` as a last resort.
+If the wiki pages don't fully answer the question, check relevant source summaries in your active `wiki/` subdirectories (e.g., under `wiki/research/` or `wiki/founder-notes/` or `wiki/ops-admin/`) for additional detail. Only go to raw files in `raw/` as a last resort.
 
 ## Synthesize the Answer
 
@@ -54,7 +48,7 @@ Match the answer format to the question:
 
 ### Citations
 
-Always cite wiki pages using `[[wikilink]]` syntax. Example:
+Always cite wiki pages using `[[wikilink]]` syntax. Obsidian resolves links globally without directory prefixes, so cite pages cleanly. Example:
 
 > According to [[product-roadmap]], our Q3 objectives focus on X. This aligns with our market positioning described in [[market-positioning]], which [[competitor-matrix]] also addresses.
 
@@ -65,7 +59,7 @@ If the answer produces something worth keeping — a comparison, analysis, new c
 > "This comparison might be useful to keep in your wiki. Want me to save it as a synthesis page?"
 
 If the user agrees:
-1. Create a new page in `wiki/` (or `wiki/synthesis/`) with proper frontmatter and relevant tech-startup tags (e.g. `#strategy`, `#product-spec`).
+1. Create a new page inside the appropriate subdirectory under `wiki/` (e.g., `wiki/strategy/` or `wiki/product-eng/` or `wiki/ops-admin/` based on its primary tag category) with proper frontmatter and relevant tech-startup tags.
 2. Add an entry to `wiki/index.md` under the appropriate category section.
 3. Append to `wiki/log.md`: `## [YYYY-MM-DD] query | Question summary`
 

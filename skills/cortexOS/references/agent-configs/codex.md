@@ -4,6 +4,10 @@ This file defines the system rules and operating instructions for Codex and othe
 
 ## 🎯 Domain & Purpose
 - **Description:** {{DOMAIN_DESCRIPTION}}
+- **Company Stage:** {{COMPANY_STAGE}}
+- **Company Scale / Employees:** {{COMPANY_EMPLOYEES}}
+- **Company Revenue:** {{COMPANY_REVENUE}}
+- **Knowledge Architecture Scale:** {{SCALING_TIER}}
 - **Domain Tags:**
 {{DOMAIN_TAGS}}
 

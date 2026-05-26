@@ -39,8 +39,15 @@ echo "========================================="
 mkdir -p "$VAULT_PATH/raw"
 mkdir -p "$VAULT_PATH/wiki"
 
-# 2. Scaffold wiki/index.md:--> Writes out the standard homepage markdown text (the Strategy, Sales, Finance categories) and saves it into the wiki/index.md file.
+# Shift the vault path argument, so that $@ contains the subdirectory names
+shift
 
+# Create subdirectories recursively
+for sub in "$@"; do
+    mkdir -p "$VAULT_PATH/wiki/$sub"
+done
+
+# 2. Scaffold wiki/index.md: Writes out the standard homepage markdown text dynamically adapted to the active directory structure.
 INDEX_FILE="$VAULT_PATH/wiki/index.md"
 if [ ! -f "$INDEX_FILE" ]; then
     cat << 'EOF' > "$INDEX_FILE"
@@ -51,32 +58,28 @@ Welcome to your structured, compiled knowledge base. This wiki serves as a singl
 ---
 
 ## 🗺️ Index & Navigation
+EOF
 
-### 🎯 Strategy & Vision
-- **[[mission-and-vision]]** - Long-term objectives, values, and strategy guidelines.
-- **[[pitch-deck-narrative]]** - Narrative structures and key talking points for investors.
+    for sub in "$@"; do
+        # Format the folder name beautifully (e.g. engineering/backend -> Engineering / Backend, founder-notes -> Founder Notes)
+        formatted_name=$(echo "$sub" | sed 's/-/ /g' | sed 's/\// \/ /g' | awk '
+        {
+            for(i=1;i<=NF;i++) {
+                # Capitalize first letter of each word
+                first=toupper(substr($i,1,1))
+                rest=substr($i,2)
+                $i=first rest
+            }
+            print
+        }')
+        
+        # Add section header and stub placeholder link
+        echo "" >> "$INDEX_FILE"
+        echo "### 📂 $formatted_name" >> "$INDEX_FILE"
+        echo "*(Add relevant notes in \`wiki/$sub/\`)*" >> "$INDEX_FILE"
+    done
 
-### 📦 Product & Engineering
-- **[[product-roadmap]]** - High-level timeline, milestones, and release plans.
-- **[[technical-architecture]]** - Core codebase architecture, infrastructure, and standards.
-- **[[product-requirements-document]]** - Template and active product specs.
-
-### 🔍 Market & Competitors
-- **[[market-positioning]]** - Target market segments, user personas, and messaging.
-- **[[competitor-matrix]]** - Breakdown of key competitors, strengths, and weaknesses.
-
-### 🤝 Sales & CRM
-- **[[sales-playbook]]** - Core sales strategy, pitch decks, and qualifying templates.
-- **[[customer-personas]]** - Profiles of target customers, pain points, and buyer journeys.
-
-### 📈 Finance & Legal
-- **[[fundraising-and-finance]]** - Cap table overview, revenue tracking, and pitch progress.
-- **[[legal-and-compliance]]** - Incorporation documents, NDAs, and licensing templates.
-
-### 👥 Operations & People
-- **[[standard-operating-procedures]]** - Onboarding guides, dev environment setup, and release checklists.
-- **[[hiring-and-talent]]** - Active job specs, hiring funnel, and interview rubrics.
-- **[[meeting-notes-index]]** - Index of team synch-ups, board meetings, and client discussions.
+    cat << 'EOF' >> "$INDEX_FILE"
 
 ---
 

@@ -20,8 +20,8 @@ For each raw source identified for ingestion, follow this strict step-by-step wo
 
 ### Step 1: Detect & Parse Vault Configuration
 Before starting, check the vault root for `AGENTS.md` (or other active configuration files like `CLAUDE.md`). 
-- Read this file to load the startup's **Domain Description** and **Domain Tags**.
-- Keep these domain details in context to guide your summaries, insights, and tag mapping.
+- Read this file to load the startup's **Domain Description**, **Domain Tags**, **Company Stage**, **Revenue**, **Employee Count**, and **Knowledge Architecture Scale (Scaling Tier)**.
+- Keep these details in context to guide your summaries, insights, folder structures, and tag mapping.
 
 ### Step 2: Identify Unprocessed Sources
 Determine which files need ingestion:
@@ -36,7 +36,7 @@ Determine which files need ingestion:
 For each source file:
 1. Read the source completely. If the file contains image/audio transcripts, analyze them.
 2. **Consult with the User:** Share the 3-5 most critical takeaways from the source.
-3. Propose exactly how you plan to categorize these takeaways using the **10 Canonical Startup Tags** (see below) and whether you need to create any new wiki pages.
+3. Propose exactly how you plan to categorize these takeaways using the **10 Canonical Startup Tags** (see below), which target subdirectory under `wiki/` they map to based on the active scale (e.g., `wiki/product-eng/` or `wiki/engineering/backend/`), and whether you need to create any new wiki pages.
 4. **STOP and wait for user confirmation** before writing or modifying any files.
 
 ### Step 4: Enforce Ingestion Security Guardrails
@@ -45,15 +45,21 @@ During the transition from `raw/` to `wiki/`, actively audit the text for sensit
 - **Redaction Policy:** You MUST redact or mask these sensitive credentials before writing to the wiki. Use clean placeholders, such as `<masked-api-key>` or `<masked-password>`.
 - **Strategic Privacy:** Financial details, board drafts, or proprietary strategic documents should use appropriate tag categories (`finance-legal` or `strategy`) and must never be referenced in external-facing summaries.
 
-### Step 5: Create or Update Wiki Pages (Flat Directory layout)
-All wiki notes must live **flat** directly inside the `wiki/` directory. **Do not create nested subfolders** (e.g. do not use `wiki/sources/` or `wiki/entities/`). 
+### Step 5: Create or Update Wiki Pages (Hierarchical Subdirectory layout)
+All wiki notes must live **inside the appropriate subdirectories** under the `wiki/` directory based on the active vault's scale and directory structure. **Do not create flat files directly under `wiki/`** except for `wiki/index.md` and `wiki/log.md`.
 
-#### A. File Naming Rules:
+#### A. Target Subdirectory Mapping Rules:
+Determine the destination subfolder by matching the page's primary tag to the active directory structure. The active subdirectories are mapped dynamically by scale:
+- **For Lean scale (Tier 1)**: `strategy`, `competitor` $\rightarrow$ `strategy/`; `product-spec`, `engineering` $\rightarrow$ `product-eng/`; all other operational tags $\rightarrow$ `ops-admin/`.
+- **For Growth/Specialized scales (Tiers 2-4)**: Map to specialized folders such as `engineering/backend/`, `product/roadmap/`, `growth-sales/`, `sales/inbound/`, `marketing/content/`, `finance-legal/`, `people-ops/`, etc., depending on what directories exist in the vault.
+- Always save files into the most granular matching subdirectory that exists. If unsure, map them logically to the corresponding department folder.
+
+#### B. File Naming Rules:
 - **Lowercase only:** e.g., `technical-architecture.md` (never `Technical-Architecture.md`).
 - **Kebab-case:** Use single hyphens `-` instead of spaces or underscores.
 - **Clean names:** Only alphanumeric characters and hyphens.
 
-#### B. YAML Frontmatter Standards:
+#### C. YAML Frontmatter Standards:
 Every page must begin with the standard YAML schema:
 ```yaml
 ---
@@ -75,7 +81,7 @@ last_updated: YYYY-MM-DD
 - `finance-legal` - Pitch metrics, cap tables, incorporation documents, compliance, contracts.
 - `hr-talent` - Hiring pipelines, job descriptions, employee onboarding, company policies.
 
-#### C. Layout Standards:
+#### D. Layout Standards:
 All generated/updated wiki pages must follow this visual layout:
 ```markdown
 # Readable Page Title
@@ -101,13 +107,13 @@ List the original raw files, URLs, or notes in `raw/` that were used:
 ```
 
 ### Step 6: Active Interlinking & Stub Creation
-1. **Deduplication:** Before creating any new page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
-2. **Wiki Link Syntax:** Use Obsidian-style double brackets `[[concept-file-name]]`. Do not append the `.md` extension inside the brackets (e.g. use `[[product-roadmap]]`, not `[[product-roadmap.md]]`).
+1. **Deduplication:** Before creating any new page, search if a page on the topic already exists recursively across all subdirectories of `wiki/` (using `grep` or `glob`). Merge new findings into the existing file rather than creating a duplicate.
+2. **Wiki Link Syntax:** Use Obsidian-style double brackets `[[concept-file-name]]`. **Do not include the folder prefix or the `.md` extension inside the brackets** (e.g. use `[[product-roadmap]]`, not `[[product/product-roadmap]]` or `[[product-roadmap.md]]`). Obsidian automatically and globally resolves links across all subdirectories!
 3. **No Orphan Pages:** Every page must be linked from at least one existing page.
-4. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you **MUST** create a brief 3-line "stub" page for it with basic frontmatter so the link is not broken.
+4. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you **MUST** create a brief 3-line "stub" page for it inside the correct tag-based subdirectory with basic frontmatter so the link is not broken.
 
 ### Step 7: Update wiki/index.md
-For each new or updated wiki page, add/verify its entry under the appropriate department header in `wiki/index.md`:
+For each new or updated wiki page, add/verify its entry under the appropriate subdirectory or department header in `wiki/index.md`:
 - `### 🎯 Strategy & Vision`
 - `### 📦 Product & Engineering`
 - `### 🔍 Market & Competitors`

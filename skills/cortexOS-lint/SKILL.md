@@ -17,22 +17,22 @@ Run all checks below, then present a consolidated report.
 
 ### 1. Broken wikilinks
 
-Scan all wiki pages for `[[wikilink]]` references. For each link, verify the target page exists. Report any broken links.
+Scan all wiki pages recursively across all subfolders for `[[wikilink]]` references. For each link, verify the target page exists *anywhere* in the `wiki/` subdirectory hierarchy (Obsidian resolves links globally, so the target page could reside in a different subfolder than the source page). Report any broken links.
 
 ```bash
-# Find all wikilinks across wiki pages
+# Find all wikilinks across wiki pages recursively
 grep -roh '\[\[[^]]*\]\]' wiki/ | sort -u
 ```
 
-Cross-reference against actual files in `wiki/`.
+Cross-reference against actual files found recursively in `wiki/`.
 
 ### 2. Orphan pages
 
 Find pages with no inbound links — no other page references them via `[[wikilink]]`.
 
-For each `.md` file in `wiki/` (including all subfolders like strategy, product, market, sales, finance, operations, sources):
+For each `.md` file in `wiki/` and all its active scale subfolders:
 - Extract the page name (filename without extension)
-- Search all other wiki pages for `[[Page Name]]`
+- Search all other wiki pages recursively for `[[Page Name]]`
 - If no other page links to it, it's an orphan
 
 ### 3. Contradictions
@@ -62,9 +62,9 @@ Find pages that discuss the same topics but don't link to each other. Look for:
 ### 7. Index consistency
 
 Verify `wiki/index.md` is complete and accurate:
-- Every page in your startup categories (Strategy, Product/Eng, Competitors, Sales/CRM, Finance/Legal, Operations/People) has an index entry
+- Every page in your active subdirectories has an index entry
 - No index entries point to deleted pages
-- Entries are under the correct department header
+- Entries are under the correct department or folder header
 
 ### 8. Data gaps
 
@@ -75,7 +75,7 @@ Based on the wiki's current coverage, suggest:
 
 ### 9. 🔒 Security & Data Privacy Audit
 
-Scan all files inside the `wiki/` directory to ensure strict compliance with company data governance:
+Scan all files recursively inside the `wiki/` directory and all its subfolders to ensure strict compliance with company data governance:
 - **Plaintext Secrets:** Search for patterns indicating exposed credentials (e.g., `API_KEY=`, `password:`, `secret=`, `bearer `, `ssh-rsa`). Flag any plaintext credentials for immediate redacting/masking.
 - **Unmasked PII:** Scan for unmasked raw personal details (passwords, private emails, phone numbers) that should be redacted or masked (e.g. `<masked-email>`).
 - **Git-Ignore Breaches:** Verify that no local `.env` files, draft revenue sheets, cap tables, or database files are tracked inside the shared public folders.
