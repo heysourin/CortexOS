@@ -63,29 +63,45 @@ last_updated: YYYY-MM-DD
 
 ## 📐 Layout Standards
 
-All wiki files should follow a highly structured, consistent visual layout:
+To ensure readability and prevent AI output token exhaustion (allowing the extraction of 40+ atomic, deeply interlinked nodes from a single source), we distinguish between two layout standards:
 
-### Heading 1: `# Readable Page Title`
+### 1. Source Summary Pages Layout (Stored in `wiki/sources/`)
+Used for master source summary files. These compile a comprehensive view of the source and must follow the full structured layout:
+
+#### Heading 1: `# Readable Source Title`
 Provide a clean title matching the frontmatter title.
 
-### 🎯 Synthesis (TL;DR)
-A dense 2-3 sentence overview explaining exactly what this note is, why it matters to the startup, and the current status.
+#### 🎯 Synthesis (TL;DR)
+A dense 2-3 sentence overview explaining exactly what this source is, its main thesis, and its relevance to the startup.
 
-### 💡 Key Takeaways & Insights
+#### 💡 Key Takeaways & Insights
 - Bullet points summarizing the absolute most critical points of intelligence.
 - Must link outwards to related concepts using `[[kebab-case-link]]`.
 
-### 🔍 Deep Dive & Content
-Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep paragraphs concise and dense.
-Always interlink topics. If you mention `redis` and a page `[[redis]]` exists, link it!
+#### 🔍 Deep Dive & Content
+Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep paragraphs concise and dense. Always interlink topics.
 
-### 📋 Action Items (If Applicable)
-- [ ] List concrete next actions with assignees if known (e.g. `[ ] @designer update Figma mocks`).
+#### 📋 Action Items (If Applicable)
+- [ ] List concrete next actions with assignees if known.
 
-### 📂 Sources & References
-List the original raw files, URLs, or notes in `raw/` that were used to compile this wiki page:
+#### 📂 Sources & References
 - `[Raw File Name](file:///relative/path/to/raw/source)`
-- `[Article Name](https://example.com/article)`
+
+---
+
+### 2. Entity & Concept Pages Layout (Stored in other subdirectories under `wiki/`)
+To maximize graph density and scalability, individual Entity (person, competitor, partner, tool) and Concept (framework, trend, department strategy, feature) pages MUST be **atomic, highly focused, and brief** (under 100-150 words/tokens). This prevents the AI from hitting output token limits when writing 30-50+ pages.
+
+#### Heading 1: `# Readable Page Title`
+Matching the frontmatter title.
+
+#### 📝 Description & Context (Dense 1-2 Paragraphs)
+- Provide a concise definition, active state, and key details about this specific concept or entity.
+- Do NOT write long deep-dives or duplicate information here. Keep it highly focused and direct.
+- **Strictly active interlinking**: Bold or link relevant related concepts using `[[kebab-case-link]]` within the body sentences.
+
+#### 📂 Sources & References
+- `[[source-summary-page-name]]` (Wikilink to the master source summary page, e.g. `[[detailed-market-research]]`) or `[Raw File Name](file:///relative/path/to/raw/source)`.
 
 ---
 

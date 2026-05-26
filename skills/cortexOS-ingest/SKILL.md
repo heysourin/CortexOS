@@ -52,16 +52,21 @@ During the transition from `raw/` to `wiki/`, actively audit the text for sensit
 - **Strategic Privacy:** Keep financials, board drafts, or proprietary strategic details in appropriate protected tag categories (`finance-legal` or `strategy`).
 
 ### Step 5: Create or Update Wiki Pages (Hierarchical Subdirectory layout)
-All wiki notes must live **inside the appropriate subdirectories** under the `wiki/` directory based on the active vault's scale and directory structure. **Do not compile files into a few broad department summaries.** Instead, split and atomize the knowledge into these page types:
+All wiki notes must live **inside the appropriate subdirectories** under the `wiki/` directory based on the active vault's scale and directory structure. **Do not compile files into a few broad department summaries.** Instead, split and atomize the knowledge into these page types.
 
-1. **Source Summary Pages**: For every ingested raw source, create or update a dedicated summary file inside the `sources/` subdirectory (or equivalent research/notes subdirectory). Name it `wiki/<subdirectory>/sources/<raw-filename>.md` (or equivalent scale path).
-2. **Entity Pages**: Create/update dedicated pages for each organization, tool, person, or competitor. File them under the active subdirectory matching their primary department (e.g. competitors go in the sales/competitor folder with the `#competitor` tag; tools go in the product/engineering folder).
-3. **Concept Pages**: Create/update dedicated pages for ideas, frameworks, features, or patterns. File them under the active subdirectory matching their category (e.g. industry concepts go in the marketing/product folder; technical frameworks go in engineering).
+> [!IMPORTANT]
+> **EXHAUSTIVE EXTRACTION & THE TOKEN LIMIT BOTTLENECK:**
+> A large source document (e.g. 50 pages) must yield **40+ atomic, deeply interlinked pages**. Pruning, omitting, or grouping separate entities/concepts into a single broad department summary is a critical failure.
+> To prevent hitting your physical **output token limit (typically 4,096 tokens)** during massive multi-file creation, you MUST keep Entity and Concept pages **extremely brief, atomic, and focused (under 100-150 tokens per file)**:
+> - **Source Summary Pages**: Placed in `wiki/sources/`. These are the master records and should use the full detailed layout standard (Synthesis, Key Takeaways, Deep Dive, Action Items).
+> - **Entity & Concept Pages**: Placed in the corresponding department directories. These must use the atomic layout (YAML frontmatter + H1 + 1-2 dense paragraphs detailing the entity/concept + double-bracket wikilinks in text + sources). Keep them extremely concise!
+
+1. **Source Summary Pages**: For every ingested raw source, create or update a dedicated summary file inside the `sources/` subdirectory (or equivalent research/notes subdirectory). Name it `wiki/sources/<raw-filename>.md`.
+2. **Entity Pages**: Create/update dedicated pages for each organization, tool, person, or competitor. File them under the active subdirectory matching their primary department (e.g. `wiki/growth/` for competitors, `wiki/engineering/` for technical tools).
+3. **Concept Pages**: Create/update dedicated pages for ideas, frameworks, features, or patterns. File them under the active subdirectory matching their category (e.g. `wiki/research/` for market trends, `wiki/product/` for product features).
 
 **Target Subdirectory Mapping Rules:**
-- **For Lean scale (Tier 1)**: `strategy`, `competitor` $\rightarrow$ `strategy/`; `product-spec`, `engineering` $\rightarrow$ `product-eng/`; all other operational tags $\rightarrow$ `ops-admin/`.
-- **For Growth/Specialized scales (Tiers 2-4)**: Map to specialized folders such as `engineering/backend/`, `product/roadmap/`, `growth-sales/`, `sales/inbound/`, `marketing/content/`, `finance-legal/`, `people-ops/`, etc., depending on what directories exist in the vault.
-- Always save files into the most granular matching subdirectory that exists. If unsure, map them logically to the corresponding department folder.
+- Always save files into the most granular matching subdirectory that exists out of the 10 standard folders (`sources/`, `strategy/`, `product/`, `engineering/`, `growth/`, `operations/`, `finance-legal/`, `ideas/`, `research/`, `customers/`). If unsure, map them logically to the corresponding department folder.
 
 **File Naming & Slugification Rules:**
 - **Kebab-case filenames:** Lowercase all filenames, replace spaces with hyphens, remove special characters, and trim to a reasonable length. E.g., `ai-skin-analysis.md`.
