@@ -1,0 +1,22 @@
+{
+  "name": "cortexos-agent-skills",
+  "version": "1.0.0",
+  "description": "CortexOS: The intelligence layer for your business",
+  "main": "index.js",
+  "bin": {
+    "skills": "./bin/cli.js"
+  },
+  "files": [
+    "skills",
+    "bin"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "keywords": [
+    "cortexos",
+    "skills"
+  ],
+  "author": "Sourin",
+  "license": "MIT"
+}
