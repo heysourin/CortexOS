@@ -80,12 +80,18 @@ Scan all files recursively inside the `wiki/` directory and all its subfolders t
 - **Unmasked PII:** Scan for unmasked raw personal details (passwords, private emails, phone numbers) that should be redacted or masked (e.g. `<masked-email>`).
 - **Git-Ignore Breaches:** Verify that no local `.env` files, draft revenue sheets, cap tables, or database files are tracked inside the shared public folders.
 
+### 10. Link Formatting Audit (Backtick Prevention)
+
+Scan all wiki pages recursively for any double-bracket `[[wikilinks]]` wrapped inside backticks (e.g. `` `[[concept-file-name]]` ``).
+- Flag these immediately for remediation. Wrapping links in backticks turns them into inline code, preventing Obsidian from indexing them or rendering them as interlinked nodes in the Graph View.
+
 ## Report Format
 
 Present findings grouped by severity:
 
 ### Errors (must fix)
 - **Security Violations** (plaintext API keys, credentials, exposed PII)
+- **Wikilinks wrapped in backticks** (breaks Obsidian link index and isolates nodes)
 - Broken wikilinks
 - Contradictions between business metrics or strategies
 - Index entries pointing to missing pages

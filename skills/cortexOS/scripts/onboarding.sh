@@ -39,47 +39,65 @@ echo "========================================="
 mkdir -p "$VAULT_PATH/raw"
 mkdir -p "$VAULT_PATH/wiki"
 
-# Shift the vault path argument, so that $@ contains the subdirectory names
-shift
+# Scaffold exactly the 10 permanent functional directories
+DEPARTMENTS=(
+    "sources"
+    "strategy"
+    "product"
+    "engineering"
+    "growth"
+    "operations"
+    "finance-legal"
+    "ideas"
+    "research"
+    "customers"
+)
 
-# Create subdirectories recursively
-for sub in "$@"; do
-    mkdir -p "$VAULT_PATH/wiki/$sub"
+for dept in "${DEPARTMENTS[@]}"; do
+    mkdir -p "$VAULT_PATH/wiki/$dept"
 done
 
-# 2. Scaffold wiki/index.md: Writes out the standard homepage markdown text dynamically adapted to the active directory structure.
+# 2. Scaffold wiki/index.md: Writes out the standard homepage navigation index.
 INDEX_FILE="$VAULT_PATH/wiki/index.md"
 if [ ! -f "$INDEX_FILE" ]; then
     cat << 'EOF' > "$INDEX_FILE"
 # 🧠 cortexOS Wiki
 
-Welcome to your structured, compiled knowledge base. This wiki serves as a single source of truth for your tech startup's intellectual property, operational guidelines, and market intelligence.
+Welcome to your structured, compiled knowledge base. This wiki serves as a single source of truth for your corporate intelligence, functional specs, and market research.
 
 ---
 
 ## 🗺️ Index & Navigation
-EOF
 
-    for sub in "$@"; do
-        # Format the folder name beautifully (e.g. engineering/backend -> Engineering / Backend, founder-notes -> Founder Notes)
-        formatted_name=$(echo "$sub" | sed 's/-/ /g' | sed 's/\// \/ /g' | awk '
-        {
-            for(i=1;i<=NF;i++) {
-                # Capitalize first letter of each word
-                first=toupper(substr($i,1,1))
-                rest=substr($i,2)
-                $i=first rest
-            }
-            print
-        }')
-        
-        # Add section header and stub placeholder link
-        echo "" >> "$INDEX_FILE"
-        echo "### 📂 $formatted_name" >> "$INDEX_FILE"
-        echo "*(Add relevant notes in \`wiki/$sub/\`)*" >> "$INDEX_FILE"
-    done
+### 📂 Sources
+*(Add raw summary files in `wiki/sources/`)*
 
-    cat << 'EOF' >> "$INDEX_FILE"
+### 📂 Strategy
+*(Add roadmaps, valuation playbooks, and strategic opportunities in `wiki/strategy/`)*
+
+### 📂 Product
+*(Add PRDs, feature checklists, and product specs in `wiki/product/`)*
+
+### 📂 Engineering
+*(Add architectures, code guidelines, and pipeline specs in `wiki/engineering/`)*
+
+### 📂 Growth
+*(Add competitor analyses, marketing playbooks, and campaigns in `wiki/growth/`)*
+
+### 📂 Operations
+*(Add SOPs, hiring plans, and team meeting logs in `wiki/operations/`)*
+
+### 📂 Finance & Legal
+*(Add incorporation files, NDAs, and regulatory compliance in `wiki/finance-legal/`)*
+
+### 📂 Ideas
+*(Add unstructured creative pitches and brain dumps in `wiki/ideas/`)*
+
+### 📂 Research
+*(Add market research summaries and trend reports in `wiki/research/`)*
+
+### 📂 Customers
+*(Add customer journey maps, feedback notes, and user personas in `wiki/customers/`)*
 
 ---
 

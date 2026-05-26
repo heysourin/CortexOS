@@ -6,9 +6,19 @@ This document outlines the strict structural, naming, and stylistic conventions 
 
 ## 🏛️ Architecture
 
-The CortexOS ( i.e. the Second Brain) is split into three main layers:
+The CortexOS (i.e. the Second Brain) is split into three main layers:
 1. `raw/` - Raw web clippings, dump notes, meeting audio transcripts, or PDFs. Agents only read from here.
-2. `wiki/` - Clean, highly structured, interlinked Markdown (`.md`) files containing synthesized knowledge.
+2. `wiki/` - Clean, highly structured, interlinked Markdown (`.md`) files organized into exactly **10 permanent, static subdirectories**:
+   - `wiki/sources/` — summaries of every raw document ingested ( provenance tracking).
+   - `wiki/strategy/` — strategic goals, pitches, high-level roadmaps, and business opportunities.
+   - `wiki/product/` — PRDs, specs, and design templates.
+   - `wiki/engineering/` — technical architectures, code guidelines, schemas, and pipelines.
+   - `wiki/growth/` — competitor research, sales playbooks, brand assets, and marketing campaigns.
+   - `wiki/operations/` — SOPs, team sync notes, onboarding checklists, and hiring/talent specs.
+   - `wiki/finance-legal/` — cap tables, incorporation records, compliance, and financials.
+   - `wiki/ideas/` — unstructured brainstorms, creative hooks, and raw startup thoughts.
+   - `wiki/research/` — general market research summaries, benchmarks, and landscape assessments.
+   - `wiki/customers/` — feedback transcripts, customer journey maps, and user personas.
 3. Configs & Rules - `CLAUDE.md` or `AGENTS.md` guiding the AI agent to follow this exact schema.
 
 ---
@@ -32,11 +42,12 @@ Every page in `wiki/` must begin with standard YAML frontmatter:
 ---
 title: "Readable Page Title"
 tags: [product-spec, engineering]
+sources: [raw-source-filename.md]
 last_updated: YYYY-MM-DD
 ---
 ```
 
-### Allowed Tech-Startup Tags:
+### Allowed Core Tags:
 - `strategy` - Business model, pitches, vision, core goals, investor updates.
 - `product-spec` - Product Requirements Documents (PRDs), roadmap items, features.
 - `engineering` - Code guidelines, system architectures, database designs.
@@ -83,9 +94,12 @@ List the original raw files, URLs, or notes in `raw/` that were used to compile 
 1. **Active Interlinking:** You must link concepts using Obsidian-style double brackets `[[concept-file-name]]`. Do not append the `.md` extension inside the brackets.
    - *Correct:* `[[product-roadmap]]`
    - *Incorrect:* `[[product-roadmap.md]]`
-2. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
-3. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
-4. **Prevent Duplication:** Before creating any page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
+2. **NO BACKTICKS AROUND LINKS:** 
+   > [!WARNING]
+   > Do **NOT** wrap double-bracket links in backticks (e.g. `` `[[concept]]` ``). Backticks convert the reference to inline code, which completely prevents Obsidian from indexing the link or rendering connections in the Graph View!
+3. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
+4. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
+5. **Prevent Duplication:** Before creating any page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
 
 ---
 

@@ -34,34 +34,31 @@ Accept any absolute or relative path. Resolve `~` to the user's home directory. 
 ### Step 3: Company Profile (Stage, Revenue & Size)
 
 Ask the user in **one single question** about their company's stage, revenue, and employee count:
-> "To help organize your wiki subdirectories and tailor the system to your scale, could you tell me your company's:
+> "To help customize your Second Brain vault metadata, could you tell me your company's:
 > 1. **Current Stage** (e.g., Idea, Pre-MVP, MVP, PMF, Growth, Scaling)
 > 2. **Annual or Monthly Revenue** (e.g., $0, $15k MRR, $1.5M ARR)
-> 3. **Employee Count** (e.g., 2, 8, 15, 50, 150 employees)
+> 3. **Employee Count** (e.g., 2, 8, 15, 50 employees)
 > 
 > (Format your response as a single string, e.g. 'Seed, $15k MRR, 8 employees', or accept the default: 'Idea, $0, 2 employees')"
 
-**Dynamic LLM Routing & Decision Logic:**
-Review the user's response, map it to the closest fitting knowledge architecture tier from the rules below, and dynamically decide the final list of subdirectories to create:
-
-*   **Tier 1: 1–3 People (Idea / Pre-MVP / Pre-revenue)**
-    *   *Folders to create*: `company`, `ideas`, `product`, `engineering`, `customers`, `research`, `founder-notes`
-    *   *Do NOT Create*: HR, Finance, Legal, Customer Success, Analytics
-*   **Tier 2: 3–10 People (MVP / Early traction / Pre-PMF | $0–$20k MRR)**
-    *   *Folders to create*: `product`, `engineering`, `sales`, `marketing`, `customers`, `operations`, `roadmap`, `experiments` (Optional: `ai`, `automation`, `support`)
-*   **Tier 3: 10–25 People (PMF / Early growth | $20k–$200k MRR)**
-    *   *Folders to create*: `engineering/backend`, `engineering/frontend`, `engineering/infra`, `product/roadmap`, `product/research`, `sales`, `marketing`, `customer-success`, `operations`, `finance`, `hiring`, `analytics`
-*   **Tier 4: 25–75 People (Growth | $200k–$2M+ MRR)**
-    *   *Folders to create*: `engineering/backend`, `engineering/frontend`, `engineering/infra`, `engineering/ai`, `product`, `marketing/content`, `marketing/seo`, `marketing/paid`, `sales/inbound`, `sales/outbound`, `customer-success`, `finance`, `people`, `legal`, `analytics`, `leadership`
-*   **Tier 5: 75–200+ People (Scaling | Multi-million ARR)**
-    *   *Folders to create*: Full departmental hierarchy (`strategy`, `product`, `engineering`, `competitors`, `marketing-sales`, `customer-success`, `finance-legal`, `hr-talent`, `operations`, `meetings`, `compliance`, `security`, `recruiting`, `decision-logs`)
+**10-Department Structural Hierarchy (Scaling up to 50 Headcount):**
+Every vault is scaffolded with exactly **10 permanent, static subdirectories** under `wiki/` to support standard functional departments of a scaling company, preventing AI classification paralysis:
+1.  `sources/` — Dedicated summary page for each raw source document ingested.
+2.  `strategy/` — High-level objectives, pitches, vision, roadmaps, and valuation playbooks.
+3.  `product/` — Product spec templates, PRDs, designs, and feature checklists.
+4.  `engineering/` — System architectures, technical code guidelines, database schemas, and AI pipelines.
+5.  `growth/` — Sales playbooks, brand campaigns, pricing matrices, and marketing copy.
+6.  `operations/` — Standard operating procedures (SOPs), onboarding guides, and hiring/talent specs.
+7.  `finance-legal/` — Incorporation documents, cap tables, NDAs, regulatory compliance, and finance trackers.
+8.  `ideas/` — Unstructured brain dumps, creative pitches, and raw strategic thoughts.
+9.  `research/` — Market research summaries, industry trend sheets, and competitor profiling.
+10. `customers/` — Customer journey maps, feedback transcripts, user personas, and target needs assessments.
 
 Based on this mapping, determine:
 - `{{COMPANY_STAGE}}` (e.g., PMF)
 - `{{COMPANY_REVENUE}}` (e.g., $150k MRR)
 - `{{COMPANY_EMPLOYEES}}` (e.g., 18)
-- `{{SCALING_TIER}}` (e.g., Tier 3: 10–25 People)
-- `{{SUBDIRECTORIES}}` (list of determined subdirectories, e.g., `sales`, `marketing`, `engineering/backend`, etc.)
+- `{{SCALING_TIER}}` (fixed at "Scaling Company up to 50 Headcount")
 
 ### Step 4: Startup Domain & Web Discovery
 
@@ -121,10 +118,10 @@ After collecting all answers, execute these steps in order:
 
 ### 1. Create directory structure
 
-Run the onboarding script, passing the full vault path followed by the list of chosen subdirectories:
+Run the onboarding script, passing the full vault path:
 
 ```
-bash <skill-directory>/scripts/onboarding.sh <vault-path> <subdirectory-1> <subdirectory-2> ...
+bash <skill-directory>/scripts/onboarding.sh <vault-path>
 ```
 
 This creates all directories and the initial `wiki/index.md` and `wiki/log.md` files.
