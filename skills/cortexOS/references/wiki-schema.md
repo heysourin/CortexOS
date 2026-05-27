@@ -73,7 +73,7 @@ To ensure readability and prevent AI output token exhaustion (allowing the extra
 > 3. After approval, create/update atomic pages in **batches of 5–8 pages per turn**, asking to proceed before each subsequent batch.
 
 ### 1. Source Summary Pages Layout (Stored in `wiki/sources/`)
-Used for master source summary files. These compile a comprehensive view of the source and must follow the full structured layout:
+Used for master source summary files. These compile a comprehensive view of the source and MUST follow this exact structured layout standard:
 
 #### Heading 1: `# Readable Source Title`
 Provide a clean title matching the frontmatter title.
@@ -87,6 +87,14 @@ A dense 2-3 sentence overview explaining exactly what this source is, its main t
 
 #### 🔍 Deep Dive & Content
 Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep paragraphs concise and dense. Always interlink topics.
+
+#### 🏛️ Entities Mentioned
+- [[Entity Name]] — brief context / relevance
+- [[Another Entity]] — brief context / relevance
+
+#### 🧠 Concepts Covered
+- [[Concept Name]] — brief context / relevance
+- [[Another Concept]] — brief context / relevance
 
 #### 📋 Action Items (If Applicable)
 - [ ] List concrete next actions with assignees if known.
