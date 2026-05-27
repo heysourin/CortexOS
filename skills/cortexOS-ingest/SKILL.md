@@ -60,6 +60,14 @@ All wiki notes must live **inside the appropriate subdirectories** under the `wi
 > To prevent hitting your physical **output token limit (typically 4,096 tokens)** during massive multi-file creation, you MUST keep Entity and Concept pages **extremely brief, atomic, and focused (under 100-150 tokens per file)**:
 > - **Source Summary Pages**: Placed in `wiki/sources/`. These are the master records and should use the full detailed layout standard (Synthesis, Key Takeaways, Deep Dive, Action Items).
 > - **Entity & Concept Pages**: Placed in the corresponding department directories. These must use the atomic layout (YAML frontmatter + H1 + 1-2 dense paragraphs detailing the entity/concept + double-bracket wikilinks in text + sources). Keep them extremely concise!
+> 
+> **Incremental Ingestion Protocol (Handling Large Sources):**
+> If the raw source is large or yields more than 5–8 new or updated atomic pages, you **MUST NOT** attempt to create/update all files in a single LLM response. Doing so will truncate your output and leave the vault corrupted. Instead, proceed incrementally:
+> 1. In your **first turn**, create only the master **Source Summary Page** in `wiki/sources/<raw-filename>.md` and output your proposed list of atomic Entity/Concept pages.
+> 2. Present this plan clearly to the user, and **STOP** to ask for confirmation to proceed.
+> 3. Once approved, create or update the atomic pages in **batches of 5–8 files per turn**.
+> 4. In each turn, list the files successfully written, then ask: *"Should I proceed with the next batch of 5–8 files?"*
+> 5. Continue this batching pattern until the entire planned list of pages is successfully ingested.
 
 1. **Source Summary Pages**: For every ingested raw source, create or update a dedicated summary file inside the `sources/` subdirectory (or equivalent research/notes subdirectory). Name it `wiki/sources/<raw-filename>.md`.
 2. **Entity Pages**: Create/update dedicated pages for each organization, tool, person, or competitor. File them under the active subdirectory matching their primary department (e.g. `wiki/growth/` for competitors, `wiki/engineering/` for technical tools).
@@ -100,10 +108,13 @@ For each new or updated wiki page, add/verify its entry under the appropriate ca
 ### Step 8: Update wiki/log.md
 Record the ingestion in `wiki/log.md` by appending:
 ```markdown
-## [YYYY-MM-DD] ingest | Source Title
+## [YYYY-MM-DD] ingest | source-filename.md
 Processed source-filename.md. Created N new pages, updated M existing pages.
 New entities/concepts: [[Entity1]], [[Concept1]].
 ```
+> [!IMPORTANT]
+> **Strict Log Header Convention:** You MUST format the section header exactly as `## [YYYY-MM-DD] ingest | source-filename.md` with the exact raw source filename after the pipe. This allows Step 2 to robustly parse previously processed files by scanning the headers of `wiki/log.md`.
+
 
 ### Step 9: Report Results
 Present a clean, high-quality, professional summary to the user outlining:

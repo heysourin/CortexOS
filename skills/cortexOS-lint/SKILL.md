@@ -17,14 +17,23 @@ Run all checks below, then present a consolidated report.
 
 ### 1. Broken wikilinks
 
-Scan all wiki pages recursively across all subfolders for `[[wikilink]]` references. For each link, verify the target page exists *anywhere* in the `wiki/` subdirectory hierarchy (Obsidian resolves links globally, so the target page could reside in a different subfolder than the source page). Report any broken links.
+Scan all wiki pages recursively across all subfolders for `[[wikilink]]` references. 
+
+**Aliased Link Resolution Protocol:**
+Obsidian supports aliased links in the form `[[Target Page|Display Text]]` or `[[Target Page|Display Text]]` with leading/trailing spaces inside. For each extracted link:
+- Check if the link contains a pipe `|` symbol.
+- If it does, split the string by `|` and take **only the left-hand part** as the actual target page name.
+- Strip any leading/trailing spaces, single or double quotes from the target page name.
+- Convert the clean target page name to a kebab-case filename (lowercase, spaces to hyphens) for matching.
+
+For each resolved target, verify the target page exists *anywhere* in the `wiki/` subdirectory hierarchy (Obsidian resolves links globally, so the target page could reside in a different subfolder than the source page). Report any broken links.
 
 ```bash
-# Find all wikilinks across wiki pages recursively
+# Find all raw wikilinks across wiki pages recursively
 grep -roh '\[\[[^]]*\]\]' wiki/ | sort -u
 ```
 
-Cross-reference against actual files found recursively in `wiki/`.
+Cross-reference against actual files found recursively in `wiki/` using the Aliased Link Resolution Protocol.
 
 ### 2. Orphan pages
 
@@ -85,6 +94,12 @@ Scan all files recursively inside the `wiki/` directory and all its subfolders t
 Scan all wiki pages recursively for any double-bracket `[[wikilinks]]` wrapped inside backticks (e.g. `` `[[concept-file-name]]` ``).
 - Flag these immediately for remediation. Wrapping links in backticks turns them into inline code, preventing Obsidian from indexing them or rendering them as interlinked nodes in the Graph View.
 
+### 11. Subdirectory Location Audit
+
+Scan all markdown (`.md`) files inside the `wiki/` directory.
+- Verify that every markdown file (except `wiki/index.md` and `wiki/log.md`) resides strictly inside one of the 10 authorized subdirectories: `sources/`, `strategy/`, `product/`, `engineering/`, `growth/`, `operations/`, `finance-legal/`, `ideas/`, `research/`, `customers/`.
+- Flag any files sitting directly in the root of the `wiki/` directory or placed inside unrecognized/custom folders. These violate the flat-layout schema rules and must be resolved.
+
 ## Report Format
 
 Present findings grouped by severity:
@@ -92,6 +107,7 @@ Present findings grouped by severity:
 ### Errors (must fix)
 - **Security Violations** (plaintext API keys, credentials, exposed PII)
 - **Wikilinks wrapped in backticks** (breaks Obsidian link index and isolates nodes)
+- **Files placed outside standard subdirectories** (residing in the `wiki/` root or unapproved folders, excluding `index.md` and `log.md`)
 - Broken wikilinks
 - Contradictions between business metrics or strategies
 - Index entries pointing to missing pages

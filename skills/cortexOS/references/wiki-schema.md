@@ -65,6 +65,13 @@ last_updated: YYYY-MM-DD
 
 To ensure readability and prevent AI output token exhaustion (allowing the extraction of 40+ atomic, deeply interlinked nodes from a single source), we distinguish between two layout standards:
 
+> [!IMPORTANT]
+> **Incremental / Batched Ingestion Protocol (Large Sources):**
+> If a source document yields more than 5–8 new/updated atomic pages, you **MUST NOT** write all pages in a single turn, as it will hit physical output token limits (4,096 tokens). Proceed incrementally:
+> 1. In your **first turn**, create ONLY the master **Source Summary Page** in `wiki/sources/` and output the proposed list of atomic Entity/Concept pages.
+> 2. STOP and wait for the user's confirmation.
+> 3. After approval, create/update atomic pages in **batches of 5–8 pages per turn**, asking to proceed before each subsequent batch.
+
 ### 1. Source Summary Pages Layout (Stored in `wiki/sources/`)
 Used for master source summary files. These compile a comprehensive view of the source and must follow the full structured layout:
 
@@ -110,12 +117,15 @@ Matching the frontmatter title.
 1. **Active Interlinking:** You must link concepts using Obsidian-style double brackets `[[concept-file-name]]`. Do not append the `.md` extension inside the brackets.
    - *Correct:* `[[product-roadmap]]`
    - *Incorrect:* `[[product-roadmap.md]]`
-2. **NO BACKTICKS AROUND LINKS:** 
+2. **Obsidian Aliased Links Support:** Obsidian supports aliased links in the form `[[Target Page|Display Text]]`. 
+   - When writing links, you may use aliases if they make sentences flow more naturally.
+   - When parsing or resolving links (e.g., during linting or searching), always split the link text by the pipe `|` symbol and validate only the left-hand target page name.
+3. **NO BACKTICKS AROUND LINKS:** 
    > [!WARNING]
    > Do **NOT** wrap double-bracket links in backticks (e.g. `` `[[concept]]` ``). Backticks convert the reference to inline code, which completely prevents Obsidian from indexing the link or rendering connections in the Graph View!
-3. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
-4. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
-5. **Prevent Duplication:** Before creating any page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
+4. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
+5. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
+6. **Prevent Duplication:** Before creating any page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
 
 ---
 
