@@ -16,25 +16,34 @@ Answer questions by searching and synthesizing knowledge from the tech startup w
 
 ### 1. Start with the index
 
-Read `wiki/index.md` to identify relevant pages. Scan all tech startup categories and their corresponding subdirectories (e.g. `wiki/engineering/`, `wiki/product-eng/`, `wiki/ops-admin/` etc.) for entries related to the question.
+Read `wiki/index.md` to identify relevant pages. Scan all tech startup categories and their corresponding subdirectories (e.g. `wiki/engineering/`, `wiki/product/`, `wiki/operations/` etc.) for entries related to the question.
 
-### 2. Use qmd for large wikis
+### 2. Prioritize Built-in Search Tools (Standard Grep / Ripgrep)
 
-If `qmd` is installed (check with `command -v qmd`), use it for search:
+As an AI agent, you have highly optimized built-in search capabilities (such as standard `grep` or specific `grep_search` tools). Use these to perform high-speed recursive keyword searches across all subdirectories of `wiki/`. 
+
+Example:
+```bash
+grep -ri "pricing matrix" wiki/
+```
+
+### 3. Check for User-Facing qmd Search (Optional Fallback)
+
+If the user or project has configured the CLI search tool `qmd` (check with `command -v qmd`), you may use it for search:
 
 ```bash
 qmd search "query terms" --path wiki/
 ```
 
-This will recursively search all wiki subdirectories and is especially useful when the wiki has grown beyond ~100 pages where scanning the index becomes inefficient.
+This is especially helpful for the startup team when interacting via terminal, or as an alternative scanning tool.
 
-### 3. Read relevant pages
+### 4. Read relevant pages
 
-Read the wiki pages identified by the index or search. Follow `[[wikilinks]]` to pull in related context from linked pages across all subfolders. Read enough pages to give a thorough answer, but don't read the entire wiki.
+Read the wiki pages identified by the index or search. Follow `[[wikilinks]]` (handling aliased links by splitting on `|`) to pull in related context from linked pages across all subfolders. Read enough pages to give a thorough answer, but don't read the entire wiki.
 
-### 4. Check raw sources if needed
+### 5. Check raw sources if needed
 
-If the wiki pages don't fully answer the question, check relevant source summaries in your active `wiki/` subdirectories (e.g., under `wiki/research/` or `wiki/founder-notes/` or `wiki/ops-admin/`) for additional detail. Only go to raw files in `raw/` as a last resort.
+If the wiki pages don't fully answer the question, check relevant source summaries in your active `wiki/` subdirectories (e.g., under `wiki/research/`, `wiki/sources/`, or `wiki/operations/`) for additional detail. Only go to raw files in `raw/` as a last resort.
 
 ## Synthesize the Answer
 
@@ -59,7 +68,7 @@ If the answer produces something worth keeping — a comparison, analysis, new c
 > "This comparison might be useful to keep in your wiki. Want me to save it as a synthesis page?"
 
 If the user agrees:
-1. Create a new page inside the appropriate subdirectory under `wiki/` (e.g., `wiki/strategy/` or `wiki/product-eng/` or `wiki/ops-admin/` based on its primary tag category) with proper frontmatter and relevant tech-startup tags.
+1. Create a new page inside the appropriate subdirectory under `wiki/` (e.g., `wiki/strategy/` or `wiki/product/` or `wiki/operations/` based on its primary tag category) with proper frontmatter and relevant tech-startup tags.
 2. Add an entry to `wiki/index.md` under the appropriate category section.
 3. Append to `wiki/log.md`: `## [YYYY-MM-DD] query | Question summary`
 

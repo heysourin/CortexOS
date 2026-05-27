@@ -65,8 +65,15 @@ last_updated: YYYY-MM-DD
 
 To ensure readability and prevent AI output token exhaustion (allowing the extraction of 40+ atomic, deeply interlinked nodes from a single source), we distinguish between two layout standards:
 
+> [!IMPORTANT]
+> **Incremental / Batched Ingestion Protocol (Large Sources):**
+> If a source document yields more than 5–8 new/updated atomic pages, you **MUST NOT** write all pages in a single turn, as it will hit physical output token limits (4,096 tokens). Proceed incrementally:
+> 1. In your **first turn**, create ONLY the master **Source Summary Page** in `wiki/sources/` and output the proposed list of atomic Entity/Concept pages.
+> 2. STOP and wait for the user's confirmation.
+> 3. After approval, create/update atomic pages in **batches of 5–8 pages per turn**, asking to proceed before each subsequent batch.
+
 ### 1. Source Summary Pages Layout (Stored in `wiki/sources/`)
-Used for master source summary files. These compile a comprehensive view of the source and must follow the full structured layout:
+Used for master source summary files. These compile a comprehensive view of the source and MUST follow this exact structured layout standard:
 
 #### Heading 1: `# Readable Source Title`
 Provide a clean title matching the frontmatter title.
@@ -81,6 +88,14 @@ A dense 2-3 sentence overview explaining exactly what this source is, its main t
 #### 🔍 Deep Dive & Content
 Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep paragraphs concise and dense. Always interlink topics.
 
+#### 🏛️ Entities Mentioned
+- [[Entity Name]] — brief context / relevance
+- [[Another Entity]] — brief context / relevance
+
+#### 🧠 Concepts Covered
+- [[Concept Name]] — brief context / relevance
+- [[Another Concept]] — brief context / relevance
+
 #### 📋 Action Items (If Applicable)
 - [ ] List concrete next actions with assignees if known.
 
@@ -90,7 +105,7 @@ Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep
 ---
 
 ### 2. Entity & Concept Pages Layout (Stored in other subdirectories under `wiki/`)
-To maximize graph density and scalability, individual Entity (person, competitor, partner, tool) and Concept (framework, trend, department strategy, feature) pages MUST be **atomic, highly focused, and brief** (under 100-150 words/tokens). This prevents the AI from hitting output token limits when writing 30-50+ pages.
+To maximize graph density and scalability, individual Entity (person, competitor, partner, tool) and Concept (framework, trend, department strategy, feature) pages MUST be **atomic, highly focused, and brief** (under 150-250 words/tokens). This prevents the AI from hitting output token limits when writing 30-50+ pages while still leaving room for mandatory cross-links.
 
 #### Heading 1: `# Readable Page Title`
 Matching the frontmatter title.
@@ -100,6 +115,12 @@ Matching the frontmatter title.
 - Do NOT write long deep-dives or duplicate information here. Keep it highly focused and direct.
 - **Strictly active interlinking**: Bold or link relevant related concepts using `[[kebab-case-link]]` within the body sentences.
 
+#### 🔗 Related Nodes *(MANDATORY — this is what builds the graph)*
+- List **3-5 wikilinks** to other Entity or Concept pages that are semantically related to this page.
+- Think: competitors link to each other, regulations link to companies they regulate, technologies link to products using them, market trends link to companies riding them.
+- These MUST be links to **other atomic pages** — NOT to the source summary page, index, or log (those go in Sources below).
+- Format: `- [[related-page-name]] — one-line reason for the connection`
+
 #### 📂 Sources & References
 - `[[source-summary-page-name]]` (Wikilink to the master source summary page, e.g. `[[detailed-market-research]]`) or `[Raw File Name](file:///relative/path/to/raw/source)`.
 
@@ -107,15 +128,39 @@ Matching the frontmatter title.
 
 ## 🔗 Wiki Linking (Interlinking) Rules
 
-1. **Active Interlinking:** You must link concepts using Obsidian-style double brackets `[[concept-file-name]]`. Do not append the `.md` extension inside the brackets.
-   - *Correct:* `[[product-roadmap]]`
-   - *Incorrect:* `[[product-roadmap.md]]`
-2. **NO BACKTICKS AROUND LINKS:** 
+1. **Active Interlinking:** You must link concepts using Obsidian-style double brackets (e.g., [[concept-file-name]]). Do not append the .md extension inside the brackets.
+   - *Correct:* [[product-roadmap]] (without backticks)
+   - *Incorrect:* `[[product-roadmap.md]]` (with .md extension and backticks)
+2. **Obsidian Aliased Links Support:** Obsidian supports aliased links in the form [[Target Page|Display Text]]. 
+   - When writing links, you may use aliases if they make sentences flow more naturally.
+   - When parsing or resolving links (e.g., during linting or searching), always split the link text by the pipe | symbol and validate only the left-hand target page name.
+3. **NO BACKTICKS AROUND LINKS:** 
    > [!WARNING]
-   > Do **NOT** wrap double-bracket links in backticks (e.g. `` `[[concept]]` ``). Backticks convert the reference to inline code, which completely prevents Obsidian from indexing the link or rendering connections in the Graph View!
-3. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
-4. **Stub Creation:** If you link to a concept that does not exist yet (e.g. `[[stripe-integration]]`), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
-5. **Prevent Duplication:** Before creating any page, use `grep` or `glob` to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
+   > Do **NOT** wrap double-bracket links in backticks under any circumstances. Wrapping links in backticks converts the reference to inline code, which completely prevents Obsidian from indexing the link or rendering connections in the Graph View!
+   > * **Correct**: [[Page Title]]
+   > * **Incorrect**: `[[Page Title]]` (with backticks)
+4. **Aggressive Interlinking Between Atomic Pages:** When creating or updating an entity or concept page, you MUST populate the mandatory `## 🔗 Related Nodes` section with 3-5 wikilinks to other atomic Entity/Concept pages. Additionally, weave links naturally into the Description body text. Every atomic page MUST contain at least 3 links to other atomic nodes (NOT counting the source summary link).
+   > [!WARNING]
+   > **ANTI-PATTERN — Hub-and-Spoke Graph:**
+   > If every atomic page only links back to the source summary page (e.g., `[[detailed-market-research]]`) and never to other atomic pages, your graph becomes a useless star shape where nodes are isolated from each other. This defeats the entire purpose of a second brain. The `🔗 Related Nodes` section exists specifically to prevent this.
+   >
+   > **❌ BAD (hub-and-spoke):**
+   > ```
+   > loreal.md → Sources: [[detailed-market-research]]
+   > shiseido.md → Sources: [[detailed-market-research]]
+   > eu-cosmetic-regulation.md → Sources: [[detailed-market-research]]
+   > (no links between loreal, shiseido, eu-cosmetic-regulation)
+   > ```
+   >
+   > **✅ GOOD (dense web):**
+   > ```
+   > loreal.md → Related: [[shiseido]], [[eu-cosmetic-regulation]], [[ai-skin-analysis]]
+   > shiseido.md → Related: [[loreal]], [[skincare-personalization]], [[ar-skin-simulation]]
+   > eu-cosmetic-regulation.md → Related: [[gdpr]], [[loreal]], [[procter-and-gamble]]
+   > ```
+5. **No Orphan Pages:** Every new page must be linked from at least one existing page (such as `wiki/index.md` or a parent topic page).
+6. **Stub Creation:** If you link to a concept that does not exist yet (e.g. [[stripe-integration]]), you must create a brief "stub" page for it with basic frontmatter so the link is not broken.
+7. **Prevent Duplication:** Before creating any page, use grep or glob to search if a page on the topic already exists. If a similar topic exists, merge/update it instead of creating a duplicate.
 
 ---
 

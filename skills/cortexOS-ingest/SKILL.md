@@ -27,7 +27,7 @@ Determine which files need ingestion:
 
 ---
 
-## Ingest Process (8-Step Workflow)
+## Ingest Process (9-Step Workflow)
 
 For each raw source identified for ingestion, follow this strict step-by-step workflow:
 
@@ -42,9 +42,9 @@ Read the entire source file. If the file contains image or audio transcripts, an
 ### Step 3: Discuss Key Takeaways with the User
 Before writing any files, share the 3–5 most critical takeaways from the source. 
 **Knowledge Graph Atomization (The Secret to Graph Density):**
-Identify all **Entities** (people, competitor companies, partners, products, tools, e.g. `loreal`, `curology`) and **Concepts** (industry trends, tech frameworks, features, standard terms, e.g. `ai-skin-analysis`, `skinimalism`) mentioned in the raw source.
-- Propose a structured list of individual, highly focused **atomic pages** you plan to create or update.
-- Ask the user if they want to emphasize any particular aspects or skip any topics. **STOP and wait for user confirmation** before proceeding.
+Do NOT hold back or summarize excessively to save tokens. You must aggressively scan the entire raw document and identify ALL possible **Entities** (people, competitor companies, partners, products, tools, e.g. `loreal`, `curology`) and **Concepts** (industry trends, tech frameworks, features, standard terms, e.g. `ai-skin-analysis`, `skinimalism`) mentioned in the raw source.
+- Propose an exhaustive list of individual, highly focused **atomic pages** you plan to create or update. There is absolutely no arbitrary limit or upper cap on the number of nodes extracted from a single source file; a deep raw source should yield as many distinct atomic pages as are supported by the actual source content (e.g., as many proposed atomic pages/nodes per source file as necessary), split across multiple batch turns.
+- Ask the user if they want to emphasize any particular aspects or skip any topics. **STOP and wait for user confirmation** before proceeding with the creation phase.
 
 ### Step 4: Enforce Ingestion Security Guardrails
 During the transition from `raw/` to `wiki/`, actively audit the text for sensitive information:
@@ -56,14 +56,59 @@ All wiki notes must live **inside the appropriate subdirectories** under the `wi
 
 > [!IMPORTANT]
 > **EXHAUSTIVE EXTRACTION & THE TOKEN LIMIT BOTTLENECK:**
-> A large source document (e.g. 50 pages) must yield **40+ atomic, deeply interlinked pages**. Pruning, omitting, or grouping separate entities/concepts into a single broad department summary is a critical failure.
-> To prevent hitting your physical **output token limit (typically 4,096 tokens)** during massive multi-file creation, you MUST keep Entity and Concept pages **extremely brief, atomic, and focused (under 100-150 tokens per file)**:
-> - **Source Summary Pages**: Placed in `wiki/sources/`. These are the master records and should use the full detailed layout standard (Synthesis, Key Takeaways, Deep Dive, Action Items).
-> - **Entity & Concept Pages**: Placed in the corresponding department directories. These must use the atomic layout (YAML frontmatter + H1 + 1-2 dense paragraphs detailing the entity/concept + double-bracket wikilinks in text + sources). Keep them extremely concise!
+> A large or substantial source document (e.g., detailed reports, transcripts, research papers) must yield **as many atomic, deeply interlinked pages as there are distinct entities and concepts present in the text, with absolutely no arbitrary limits or upper caps** (e.g., as many pages from a single deep resource is fully expected if the content supports it). Do NOT prune, omit, or collapse separate entities/concepts into a single broad summary page to "save tokens" or speed up the process. A dense and granular knowledge graph is the ultimate goal.
+> To prevent hitting your physical **output token limit (typically 4,096 tokens)** during massive multi-file creation, you MUST keep Entity and Concept pages **extremely brief, atomic, and focused (under 150-250 tokens per file)**:
+> - **Source Summary Pages**: Placed in `wiki/sources/`. These are the master records and MUST use the structured layout standard containing dedicated **Entities Mentioned** and **Concepts Covered** sections to act as the master index.
+> - **Entity & Concept Pages**: Placed in the corresponding department directories. These must use the atomic layout (YAML frontmatter + H1 + 1-2 dense paragraphs + mandatory `🔗 Related Nodes` section with 3-5 cross-links to other atomic pages + `📂 Sources`). Keep them concise but ALWAYS include cross-links!
+> 
+> **Incremental Ingestion Protocol (Handling Large Sources):**
+> If the raw source yields more than 5–8 new or updated atomic pages (which it almost always should for any comprehensive document), you **MUST NOT** attempt to create/update all files in a single LLM response. Doing so will truncate your output and leave the vault corrupted. Instead, strictly proceed incrementally:
+> 1. In your **first turn**, create the master **Source Summary Page** in `wiki/sources/<raw-filename>.md` containing the exhaustive lists of `Entities Mentioned` and `Concepts Covered` as double-bracket wikilinks, and output your proposed list of atomic Entity/Concept pages. Presenting these lists in the Source Summary Page creates the initial unlinked nodes in the Graph View and acts as a precise checklist for the subsequent creation turns.
+> 2. Present this plan clearly to the user, and **STOP** to ask for confirmation to proceed.
+> 3. Once approved, create or update the atomic pages in **batches of 5–8 files per turn**.
+> 4. **Cross-link awareness per batch:** When writing each batch, you MUST:
+>    - Include the mandatory `🔗 Related Nodes` section on every page with 3-5 links to **other atomic pages** (NOT just the source summary).
+>    - Link new pages to **already-created pages** from previous batches wherever semantically relevant.
+>    - Maintain a mental **cross-link backlog**: if a page from batch 1 should link to a page you're creating in batch 3, note it and update the batch 1 page in the current turn.
+> 5. In each turn, list the files successfully written (including any previously-created files updated with new cross-links), then ask: *"Should I proceed with the next batch of 5–8 files?"*
+> 6. Continue this batching pattern until the entire planned list of pages is successfully ingested.
+> 7. After the **final batch**, perform a **Cross-Linking Sweep** (see Step 6b below).
 
 1. **Source Summary Pages**: For every ingested raw source, create or update a dedicated summary file inside the `sources/` subdirectory (or equivalent research/notes subdirectory). Name it `wiki/sources/<raw-filename>.md`.
-2. **Entity Pages**: Create/update dedicated pages for each organization, tool, person, or competitor. File them under the active subdirectory matching their primary department (e.g. `wiki/growth/` for competitors, `wiki/engineering/` for technical tools).
-3. **Concept Pages**: Create/update dedicated pages for ideas, frameworks, features, or patterns. File them under the active subdirectory matching their category (e.g. `wiki/research/` for market trends, `wiki/product/` for product features).
+   Every Source Summary Page MUST follow this exact markdown template to ensure a complete, structured index of the source:
+   ```markdown
+   # Readable Source Title
+
+   **Source:** <raw-filename>
+   **Date ingested:** YYYY-MM-DD
+   **Type:** article | paper | transcript | notes | etc.
+
+   ## 🎯 Synthesis (TL;DR)
+   A dense 2-3 sentence overview explaining exactly what this source is, its main thesis, and its relevance to the startup.
+
+   ## 💡 Key Takeaways & Insights
+   - Bullet points summarizing the absolute most critical points of intelligence.
+   - Must link outwards to related concepts using `[[kebab-case-link]]`.
+
+   ## 🔍 Deep Dive & Content
+   Use structured Heading 2 (`##`) and Heading 3 (`###`) to expand on details. Keep paragraphs concise and dense. Always interlink topics.
+
+   ## 🏛️ Entities Mentioned
+   - [[Entity Name]] — brief context / relevance
+   - [[Another Entity]] — brief context / relevance
+
+   ## 🧠 Concepts Covered
+   - [[Concept Name]] — brief context / relevance
+   - [[Another Concept]] — brief context / relevance
+
+   ## 📋 Action Items (If Applicable)
+   - [ ] Concrete next action with assignee if known.
+
+   ## 📂 Sources & References
+   - [Raw File Name](file:///relative/path/to/raw/source)
+   ```
+2. **Entity Pages**: Create/update dedicated pages for each organization, tool, person, or competitor listed under **Entities Mentioned**. File them under the active subdirectory matching their primary department (e.g. `wiki/growth/` for competitors, `wiki/engineering/` for technical tools). Every Entity page MUST include the `🔗 Related Nodes` section with 3-5 cross-links to other atomic pages.
+3. **Concept Pages**: Create/update dedicated pages for ideas, frameworks, features, or patterns listed under **Concepts Covered**. File them under the active subdirectory matching their category (e.g. `wiki/research/` for market trends, `wiki/product/` for product features). Every Concept page MUST include the `🔗 Related Nodes` section with 3-5 cross-links to other atomic pages.
 
 **Target Subdirectory Mapping Rules:**
 - Always save files into the most granular matching subdirectory that exists out of the 10 standard folders (`sources/`, `strategy/`, `product/`, `engineering/`, `growth/`, `operations/`, `finance-legal/`, `ideas/`, `research/`, `customers/`). If unsure, map them logically to the corresponding department folder.
@@ -93,6 +138,18 @@ Ensure all related pages link to each other using Obsidian `[[wikilink]]` syntax
 - You can use the page's actual **Title Case** title inside the brackets (e.g., `[[Entity Name]]` or `[[Concept Name]]`). Obsidian will map it to `entity-name.md`.
 - **No Orphan Pages:** Every page must be linked from at least one existing page. If you link to a concept that does not exist yet, you **MUST** create a brief 3-line "stub" page for it inside the correct tag-based subdirectory with basic frontmatter so the link is not broken.
 
+### Step 6b: Cross-Linking Sweep *(After Final Batch)*
+After ALL batches of atomic pages have been created, perform a dedicated cross-linking pass to catch links that couldn't be made during earlier batches (because target pages didn't exist yet):
+
+1. **List all pages created** during this entire ingestion session.
+2. **For each page**, read its `🔗 Related Nodes` section and verify it contains at least 3 links to other atomic pages. If fewer, identify and add missing related pages.
+3. **Check bidirectionality**: If page A links to page B in its Related Nodes, page B should also link back to page A (unless they are unrelated). Update page B's Related Nodes section if needed.
+4. **Scan for missed connections**: Look for obvious semantic relationships that were missed — e.g., two competitor companies that should link to each other, a regulation and the companies it affects, a technology and the products using it.
+5. Report the cross-linking sweep results: *"Cross-linking sweep complete. Updated N pages with M new cross-links."*
+
+> [!IMPORTANT]
+> This sweep is the **most critical step** for graph density. Without it, pages from early batches will be under-linked because later pages didn't exist when they were written. Do NOT skip this step.
+
 ### Step 7: Update wiki/index.md
 For each new or updated wiki page, add/verify its entry under the appropriate category header in `wiki/index.md` in the format:
 `- [[Page Name]] — one-line summary (under 120 characters)`
@@ -100,10 +157,13 @@ For each new or updated wiki page, add/verify its entry under the appropriate ca
 ### Step 8: Update wiki/log.md
 Record the ingestion in `wiki/log.md` by appending:
 ```markdown
-## [YYYY-MM-DD] ingest | Source Title
+## [YYYY-MM-DD] ingest | source-filename.md
 Processed source-filename.md. Created N new pages, updated M existing pages.
 New entities/concepts: [[Entity1]], [[Concept1]].
 ```
+> [!IMPORTANT]
+> **Strict Log Header Convention:** You MUST format the section header exactly as `## [YYYY-MM-DD] ingest | source-filename.md` with the exact raw source filename after the pipe. This allows Step 2 to robustly parse previously processed files by scanning the headers of `wiki/log.md`.
+
 
 ### Step 9: Report Results
 Present a clean, high-quality, professional summary to the user outlining:
@@ -116,8 +176,8 @@ Present a clean, high-quality, professional summary to the user outlining:
 
 ## Conventions
 - Source summary pages are **factual only**. Save interpretation and synthesis for concept and synthesis pages.
-- A single source typically touches **10–15 wiki pages**. This is normal and expected.
+- A single source should be mined exhaustively for every possible entity and concept it contains: while a short note might touch 10–15 pages, a comprehensive raw document should yield as many atomic, deeply interlinked pages as the content naturally supports (e.g., 50 to 100+ pages from a single deep resource, scaling dynamically to thousands of nodes across the entire vault as more resources are ingested). Never limit node generation or compromise on graph density just to save tokens.
 - When new information contradicts existing wiki content, **update the wiki page and note the contradiction** with both sources cited.
-- **Prefer updating existing pages** over creating new ones. Only create a new page when the topic is distinct enough to warrant its own page.
+- **Prefer updating existing pages** over creating new ones if they represent the exact same entity/concept. Otherwise, create a new page to keep nodes highly atomic.
 - Use `[[wikilinks]]` for all internal references. Never use raw file paths in note contents.
 - Never wrap links in backticks.
