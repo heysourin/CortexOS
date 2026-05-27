@@ -63,10 +63,23 @@ Scan for `[[wikilinks]]` that point to pages that don't exist yet. These are top
 
 ### 6. Missing cross-references
 
+**6a. Missing `🔗 Related Nodes` sections:**
+Scan all Entity and Concept pages (all `.md` files in `wiki/` subdirectories EXCEPT `wiki/sources/`, `wiki/index.md`, and `wiki/log.md`). Flag any page that:
+- Is missing the `## 🔗 Related Nodes` section entirely
+- Has a `## 🔗 Related Nodes` section with fewer than 3 wikilinks to other atomic pages
+- Has a `## 🔗 Related Nodes` section where all links point only to source summary pages (hub-and-spoke anti-pattern)
+
+**6b. Missing topical cross-references:**
 Find pages that discuss the same topics but don't link to each other. Look for:
+- Competitor entities that don't link to each other (e.g., `loreal.md` and `shiseido.md`)
+- Regulations that don't link to the companies they affect
+- Technologies that don't link to the products using them
 - Sales playbooks that mention products without linking them
 - Technical architectures that mention APIs without linking them
 - Source summaries that cover the same competitor but don't reference each other
+
+**6c. Bidirectional link check:**
+If page A lists page B in its `🔗 Related Nodes`, verify that page B also lists page A. Flag any one-directional relationships for remediation.
 
 ### 7. Index consistency
 
